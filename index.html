@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gaming Trends</title>
+
+    <link
+        rel="stylesheet"
+        
+    >
+</head>
+
+<body>
+    <header>
+        <h1>Gaming Trends</h1>
+
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="#survey">Submit</a>
+            <a href="{{ url_for('results_page') }}">Results</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Discover What Gamers Are Playing</h2>
+
+            <p>
+                Submit your gaming preferences and see which games are
+                most popular on each platform.
+            </p>
+        </section>
+
+        <section id="survey">
+            <h2>Gaming Survey</h2>
+
+            <form id="gaming-survey">
+                <label for="platform">Gaming platform:</label>
+
+                <select id="platform" required>
+                    <option value="">Select a platform</option>
+                    <option value="PC">PC</option>
+                    <option value="PlayStation">PlayStation</option>
+                    <option value="Xbox">Xbox</option>
+                    <option value="Nintendo Switch">
+                        Nintendo Switch
+                    </option>
+                    <option value="Mobile">Mobile</option>
+                </select>
+
+                <label for="favorite">Favorite game:</label>
+
+                <input
+                    id="favorite"
+                    type="text"
+                    maxlength="100"
+                    required
+                >
+
+                <label for="most-played">Most-played game:</label>
+
+                <input
+                    id="most-played"
+                    type="text"
+                    maxlength="100"
+                    required
+                >
+
+                <label for="currently-playing">
+                    Currently playing:
+                </label>
+
+                <input
+                    id="currently-playing"
+                    type="text"
+                    maxlength="100"
+                    required
+                >
+
+                <button type="submit">Submit</button>
+
+                <p id="form-message"></p>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("gaming-survey");
+        const message = document.getElementById("form-message");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            message.textContent = "Submitting...";
+
+            const responseData = {
+                platform:
+                    document.getElementById("platform").value,
+
+                favorite:
+                    document.getElementById("favorite").value,
+
+                most_played:
+                    document.getElementById("most-played").value,
+
+                currently_playing:
+                    document.getElementById(
+                        "currently-playing"
+                    ).value
+            };
+
+            try {
+                const response = await fetch("/api/responses", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(responseData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        result.error || "Submission failed"
+                    );
+                }
+
+                message.textContent =
+                    "Your response was recorded!";
+
+                form.reset();
+
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>
