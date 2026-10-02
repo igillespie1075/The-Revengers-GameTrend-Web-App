@@ -1,0 +1,79 @@
+CREATE DATABASE IF NOT EXISTS GamingTrends;
+
+USE GamingTrends;
+
+CREATE TABLE platforms (
+    platform_id INT AUTO_INCREMENT PRIMARY KEY,
+    platform_name VARCHAR(50) NOT NULL UNIQUE,
+    platform_url VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE games (
+    game_id INT AUTO_INCREMENT PRIMARY KEY,
+    game_name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE submissions (
+    submission_id INT AUTO_INCREMENT PRIMARY KEY,
+    platform_id INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (platform_id)
+        REFERENCES platforms(platform_id)
+);
+
+CREATE TABLE responses (
+    response_id INT AUTO_INCREMENT PRIMARY KEY,
+    submission_id INT NOT NULL,
+    game_id INT NOT NULL,
+
+    response_type ENUM(
+        'favorite',
+        'most_played',
+        'currently_playing'
+    ) NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (submission_id)
+        REFERENCES submissions(submission_id),
+
+    FOREIGN KEY (game_id)
+        REFERENCES games(game_id),
+
+    UNIQUE (submission_id, response_type)
+);
+USE GamingTrends;
+
+INSERT INTO platforms (platform_name)
+VALUES
+    ('PC'),
+    ('PlayStation'),
+    ('Xbox'),
+    ('Nintendo Switch');
+
+INSERT INTO games (game_name)
+VALUES
+    ('Minecraft'),
+    ('Fortnite'),
+    ('Roblox'),
+    ('Elden Ring'),
+    ('Valorant'),
+    ('Rocket League');
+    
+SELECT
+    g.game_name,
+    COUNT(*) AS votes
+FROM responses AS r
+JOIN games AS g
+    ON r.game_id = g.game_id
+JOIN submissions AS s
+    ON r.submission_id = s.submission_id
+JOIN platforms AS p
+    ON s.platform_id = p.platform_id
+WHERE r.response_type = 'favorite'
+  AND p.platform_name = 'PlayStation'
+GROUP BY g.game_id, g.game_name
+ORDER BY votes DESC, g.game_name;
