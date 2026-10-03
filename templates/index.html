@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gaming Trends</title>
+
+    <!-- If your stylesheet has a different name/path, change it here. -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+    <header>
+        <h1>Gaming Trends</h1>
+
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="#survey">Submit</a>
+            <a href="{{ url_for('results_page') }}">Results</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Discover What Gamers Are Playing</h2>
+
+            <p>
+                Submit your gaming preferences and see which games are
+                most popular on each platform.
+            </p>
+        </section>
+
+        <section id="survey">
+            <h2>Gaming Survey</h2>
+
+            <form id="gaming-survey" autocomplete="off">
+                <label for="platform">Gaming platform:</label>
+
+                <select id="platform" required>
+                    <option value="">Select a platform</option>
+                </select>
+
+                <label for="favorite">Favorite game:</label>
+
+                <input
+                    id="favorite"
+                    type="text"
+                    list="game-options"
+                    maxlength="100"
+                    placeholder="Start typing a game..."
+                    required
+                >
+
+                <label for="most_played">Most-played game:</label>
+
+                <input
+                    id="most_played"
+                    type="text"
+                    list="game-options"
+                    maxlength="100"
+                    placeholder="Start typing a game..."
+                    required
+                >
+
+                <label for="currently_playing">
+                    Currently playing:
+                </label>
+
+                <input
+                    id="currently_playing"
+                    type="text"
+                    list="game-options"
+                    maxlength="100"
+                    placeholder="Start typing a game..."
+                    required
+                >
+
+                <!-- Filled in from the games table; powers the suggestions -->
+                <datalist id="game-options"></datalist>
+
+                <button type="submit">Submit</button>
+
+                <p id="form-message"></p>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("gaming-survey");
+        const message = document.getElementById("form-message");
+        const platformSelect = document.getElementById("platform");
+        const gameOptions = document.getElementById("game-options");
+
+        const fieldIds = [
+            "platform",
+            "favorite",
+            "most_played",
+            "currently_playing"
+        ];
+
+        function showMessage(text, isError) {
+            message.textContent = text;
+            message.style.color = isError ? "#c0392b" : "#1e8449";
+        }
+
+        function clearFieldErrors() {
+            for (const id of fieldIds) {
+                document.getElementById(id).style.outline = "";
+            }
+        }
+
+        // Load the platforms from the database into the dropdown.
+        async function loadPlatforms() {
+            try {
+                const response = await fetch("/api/platforms");
+                const platforms = await response.json();
+
+                for (const name of platforms) {
+                    const option = document.createElement("option");
+                    option.value = name;
+                    option.textContent = name;
+                    platformSelect.appendChild(option);
+                }
+            } catch (error) {
+                showMessage("Could not load platforms.", true);
+            }
+        }
+
+        // Load every game name into the <datalist> so the browser
+        // suggests (and auto-completes) matches as the user types.
+        async function loadGames() {
+            try {
+                const response = await fetch("/api/games");
+                const games = await response.json();
+
+                for (const name of games) {
+                    const option = document.createElement("option");
+                    option.value = name;
+                    gameOptions.appendChild(option);
+                }
+            } catch (error) {
+                showMessage("Could not load the game list.", true);
+            }
+        }
+
+        loadPlatforms();
+        loadGames();
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            clearFieldErrors();
+            showMessage("Submitting...", false);
+
+            const responseData = {};
+
+            for (const id of fieldIds) {
+                responseData[id] = document.getElementById(id).value;
+            }
+
+            try {
+                const response = await fetch("/api/responses", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(responseData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    if (result.field) {
+                        const badField =
+                            document.getElementById(result.field);
+
+                        if (badField) {
+                            badField.style.outline = "2px solid #c0392b";
+                            badField.focus();
+                        }
+                    }
+
+                    throw new Error(
+                        result.error || "Submission failed"
+                    );
+                }
+
+                showMessage("Your response was recorded!", false);
+
+                form.reset();
+
+            } catch (error) {
+                showMessage(error.message, true);
+            }
+        });
+    </script>
+</body>
+</html>
