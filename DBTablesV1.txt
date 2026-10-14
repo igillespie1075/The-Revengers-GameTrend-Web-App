@@ -1,0 +1,30 @@
+CREATE TABLE users (
+    user_id INTEGER NOT NULL,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP
+);
+
+CREATE TABLE platforms (
+    platform_id INTEGER,
+    platform_name TEXT NOT NULL,
+    platform_url TEXT,
+    created_at TIMESTAMP 
+);
+
+CREATE TABLE games (
+    game_id INTEGER,
+    platform_id INTEGER,
+    game_name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP
+);
+
+CREATE TABLE responses (
+    response_id INTEGER,
+    user_id INTEGER,
+    game_id INTEGER,
+    response TEXT NOT NULL,
+    created_at TIMESTAMP
+);
