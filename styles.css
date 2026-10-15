@@ -1,0 +1,412 @@
+/* Gaming Trends — temporary site-wide styling
+   Link this file in each HTML page:
+   <link rel="stylesheet" href="styles.css">
+*/
+
+:root {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --text: #172033;
+  --muted: #65718a;
+  --primary: #5b5ce2;
+  --primary-dark: #4647c7;
+  --accent: #16a6a1;
+  --border: #e2e8f0;
+  --shadow: 0 12px 32px rgba(25, 39, 73, 0.08);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at top left, rgba(91, 92, 226, 0.09), transparent 34rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(91, 92, 226, 0.3);
+  outline-offset: 3px;
+}
+
+/* Main page frame. Works with <main>, <header>, or a simple wrapper. */
+main,
+.container,
+.page-container,
+.content,
+#app {
+  width: min(1080px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+body > h1,
+header h1,
+.site-header h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+}
+
+/* Hero/header styling */
+header,
+.site-header,
+.hero {
+  padding: 36px max(20px, calc((100% - 1080px) / 2));
+  background: linear-gradient(125deg, #20234a 0%, #4547b9 58%, #5b5ce2 100%);
+  color: #fff;
+}
+
+header p,
+.site-header p,
+.hero p {
+  max-width: 680px;
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Navigation */
+nav,
+.navbar,
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px max(20px, calc((100% - 1080px) / 2));
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--border);
+}
+
+nav a,
+.navbar a,
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: #4b5670;
+  font-weight: 650;
+}
+
+nav a:hover,
+.navbar a:hover,
+.site-nav a:hover {
+  background: #f0f0ff;
+  color: var(--primary-dark);
+  text-decoration: none;
+}
+
+/* Headings and intro copy */
+h1, h2, h3 {
+  line-height: 1.25;
+}
+
+h2 {
+  margin: 30px 0 10px;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  letter-spacing: -0.025em;
+}
+
+h3 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+}
+
+p {
+  color: var(--muted);
+}
+
+section,
+.panel,
+.card,
+.results-section,
+.survey-section {
+  margin: 24px 0;
+  padding: clamp(20px, 3vw, 30px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Survey form — supports either semantic markup or common form elements */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+}
+
+form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #364158;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cbd4e2;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+form input,
+form select {
+  flex: 1 1 180px;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: #a6add0;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(91, 92, 226, 0.12);
+}
+
+button,
+input[type="submit"],
+input[type="button"],
+.button,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 5px 12px rgba(91, 92, 226, 0.2);
+  transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.button:hover,
+.btn:hover {
+  background: var(--primary-dark);
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(91, 92, 226, 0.25);
+}
+
+button:active,
+input[type="submit"]:active,
+.button:active,
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Results page: three category cards. Add class="results-grid" to the wrapper
+   and class="results-card" to each category section for the intended layout. */
+.results-grid,
+.result-grid,
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+  margin: 24px 0;
+}
+
+.results-card,
+.result-card,
+.results-grid section,
+.result-grid section,
+.categories-grid section {
+  min-width: 0;
+  margin: 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.results-card h2,
+.result-card h2,
+.results-grid h2,
+.result-grid h2,
+.categories-grid h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+ol,
+ul {
+  padding-left: 1.5rem;
+}
+
+ol li,
+ul li {
+  padding: 7px 0 7px 4px;
+  color: #344057;
+}
+
+ol li::marker {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.results-card li,
+.result-card li {
+  border-bottom: 1px solid #edf0f6;
+}
+
+.results-card li:last-child,
+.result-card li:last-child {
+  border-bottom: 0;
+}
+
+/* Optional game count / vote totals */
+.vote-count,
+.game-count,
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #efefff;
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+/* Footer */
+footer,
+.site-footer {
+  margin-top: 48px;
+  padding: 24px 20px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Small screens */
+@media (max-width: 760px) {
+  main,
+  .container,
+  .page-container,
+  .content,
+  #app {
+    width: min(100% - 28px, 1080px);
+  }
+
+  header,
+  .site-header,
+  .hero {
+    padding: 28px 20px;
+  }
+
+  nav,
+  .navbar,
+  .site-nav {
+    padding: 10px 14px;
+    gap: 4px;
+  }
+
+  nav a,
+  .navbar a,
+  .site-nav a {
+    padding-inline: 10px;
+  }
+
+  .results-grid,
+  .result-grid,
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  section,
+  .panel,
+  .card,
+  .results-section,
+  .survey-section {
+    padding: 20px;
+  }
+
+  form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  form label,
+  form input,
+  form select,
+  form button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
