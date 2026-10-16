@@ -1,3 +1,17 @@
+# Database credentials
 .env
+
+# Python-generated files
 __pycache__/
+*.py[cod]
+
+# Virtual environment folders
 venv/
+.venv/
+
+# VS Code computer-specific settings
+.vscode/
+
+# Operating-system files
+.DS_Store
+Thumbs.db

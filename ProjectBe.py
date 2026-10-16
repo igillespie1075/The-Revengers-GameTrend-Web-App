@@ -310,8 +310,6 @@ def add_response():
     }), 201
 
 
-# This is acceptable for a local class prototype.
-# Restrict the permitted origin before publicly deploying it.
 @app.after_request
 def allow_frontend(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
