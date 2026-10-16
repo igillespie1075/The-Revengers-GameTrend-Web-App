@@ -103,6 +103,21 @@ def top_games(category, limit, platform=None):
     ]
 
 
+# ---------- Error handling ----------
+
+@app.errorhandler(mysql.connector.Error)
+def database_error(error):
+    """Send a clear JSON message instead of a crash page when MySQL fails."""
+    app.logger.error("Database error: %s",error)
+
+    return jsonify({
+        "error": (
+            "Can't reach the database. Check that MySQL is running "
+            "and that DB_NAME, DB_USER and DB_PASSWORD in .env are correct."
+        )
+    }), 503
+
+
 # ---------- Page routes ----------
 
 @app.get("/")
@@ -310,15 +325,8 @@ def add_response():
     }), 201
 
 
-@app.after_request
-def allow_frontend(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = (
-        "GET, POST, OPTIONS"
-    )
-    return response
-
-
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    # Debug mode shows a code-running error page, so it is off unless
+    # FLASK_DEBUG=1 is set in your own .env file.
+    debug_mode = os.getenv("FLASK_DEBUG") == "1"
+    app.run(debug=debug_mode, port=5000)

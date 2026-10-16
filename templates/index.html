@@ -123,6 +123,11 @@
                 const response = await fetch("/api/platforms");
                 const platforms = await response.json();
 
+                if (!response.ok) {
+                    showMessage(platforms.error || "Could not load platforms.", true);
+                    return;
+                }
+
                 for (const name of platforms) {
                     const option = document.createElement("option");
                     option.value = name;
@@ -130,7 +135,7 @@
                     platformSelect.appendChild(option);
                 }
             } catch (error) {
-                showMessage("Could not load platforms.", true);
+                showMessage("Could not reach the server. Is ProjectBe.py running?", true);
             }
         }
 
@@ -141,13 +146,18 @@
                 const response = await fetch("/api/games");
                 const games = await response.json();
 
+                if (!response.ok) {
+                    showMessage(games.error || "Could not load the game list.", true);
+                    return;
+                }
+
                 for (const name of games) {
                     const option = document.createElement("option");
                     option.value = name;
                     gameOptions.appendChild(option);
                 }
             } catch (error) {
-                showMessage("Could not load the game list.", true);
+                showMessage("Could not reach server. Is ProjectBe.py running?", true);
             }
         }
 
