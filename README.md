@@ -1,3 +1,6 @@
+Required files: templates folder, static folder, .env.example, .gitignore, ProjectBe.py, README.md, database_setup.sql, requirements.txt
+
+
 Install Python, MySQL Server, and MySQL Workbench.
 
 Download or clone this GitHub Repo
