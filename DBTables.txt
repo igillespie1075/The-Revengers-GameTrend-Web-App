@@ -2,6 +2,14 @@ CREATE DATABASE IF NOT EXISTS GamingTrends;
 
 USE GamingTrends;
 
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE platforms (
     platform_id INT AUTO_INCREMENT PRIMARY KEY,
     platform_name VARCHAR(50) NOT NULL UNIQUE,
@@ -17,11 +25,15 @@ CREATE TABLE games (
 
 CREATE TABLE submissions (
     submission_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
     platform_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (platform_id)
-        REFERENCES platforms(platform_id)
+        REFERENCES platforms(platform_id),
+
+    FOREIGN KEY (user_id) 
+        REFERENCES users(id)
 );
 
 CREATE TABLE responses (
