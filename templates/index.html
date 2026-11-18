@@ -141,9 +141,20 @@
 
         // Load every game name into the <datalist> so the browser
         // suggests (and auto-completes) matches as the user types.
-        async function loadGames() {
+        // Reload the suggestions for the selected platform.
+        // Any game already typed that isn't on that platform is cleared.
+        async function loadGames(platform) {
+            gameOptions.innerHTML = "";
+
+            if (!platform) {
+                setGameInputsEnabled(false);
+                return;
+            }
+
             try {
-                const response = await fetch("/api/games");
+                const response = await fetch(
+                    "/api/games?platform=" + encodeURIComponent(platform)
+                );
                 const games = await response.json();
 
                 if (!response.ok) {
@@ -151,18 +162,46 @@
                     return;
                 }
 
+                const allowed = new Set(games);
+
                 for (const name of games) {
                     const option = document.createElement("option");
                     option.value = name;
                     gameOptions.appendChild(option);
                 }
+
+                for (const id of gameFieldIds) {
+                    const input = document.getElementById(id);
+
+                    if (!allowed.has(input.value)) {
+                        input.value = "";
+                    }
+                }
+
+                setGameInputsEnabled(true);
             } catch (error) {
                 showMessage("Could not reach server. Is ProjectBe.py running?", true);
             }
         }
 
+        const gameFieldIds = ["favorite", "most_played", "currently_playing"];
+
+        function setGameInputsEnabled(enabled) {
+            for (const id of gameFieldIds) {
+                const input = document.getElementById(id);
+                input.disabled = !enabled;
+                input.placeholder = enabled
+                    ? "Start typing a game..."
+                    : "Select a platform first";
+            }
+        }
+
+        platformSelect.addEventListener("change", () => {
+            loadGames(platformSelect.value);
+        });
+
+        setGameInputsEnabled(false);
         loadPlatforms();
-        loadGames();
 
         form.addEventListener("submit", async (event) => {
             event.preventDefault();

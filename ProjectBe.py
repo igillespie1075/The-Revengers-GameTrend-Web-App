@@ -147,9 +147,35 @@ def list_platforms():
 
 @app.get("/api/games")
 def list_games():
-    """Every game in the database; the survey page uses this for suggestions."""
+    """Games for the survey suggestions.
+
+    ?platform=PlayStation only returns games available on that platform.
+    With no platform, every game is returned.
+    """
+    platform = request.args.get("platform", "").strip() or None
+
+    if platform and platform not in get_platform_names():
+        return jsonify({"error": "Unknown platform"}), 400
+
     cursor = get_db().cursor()
-    cursor.execute("SELECT game_name FROM games ORDER BY game_name")
+
+    if platform:
+        cursor.execute(
+            """
+            SELECT g.game_name
+            FROM games AS g
+            JOIN game_platforms AS gp
+                ON gp.game_id = g.game_id
+            JOIN platforms AS p
+                ON p.platform_id = gp.platform_id
+            WHERE p.platform_name = %s
+            ORDER BY g.game_name
+            """,
+            (platform,),
+        )
+    else:
+        cursor.execute("SELECT game_name FROM games ORDER BY game_name")
+
     names = [row[0] for row in cursor.fetchall()]
     cursor.close()
     return jsonify(names)
@@ -268,20 +294,27 @@ def add_response():
                 "field": "platform",
             }), 400
 
-        # 2. Every game must exist in the games table.
+        # 2. Every game must exist AND be available on the chosen platform.
         game_ids = {}
 
         for category, game in choices.items():
             cursor.execute(
-                "SELECT game_id FROM games WHERE game_name = %s",
-                (game,),
+                """
+                SELECT g.game_id
+                FROM games AS g
+                JOIN game_platforms AS gp
+                    ON gp.game_id = g.game_id
+                WHERE g.game_name = %s
+                  AND gp.platform_id = %s
+                """,
+                (game, platform_row["platform_id"]),
             )
             game_row = cursor.fetchone()
 
             if game_row is None:
                 return jsonify({
                     "error": (
-                        f'"{game}" is not in our game list. '
+                        f'"{game}" is not on our {platform} game list. '
                         "Please choose a game from the suggestions."
                     ),
                     "field": category,
