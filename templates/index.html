@@ -170,12 +170,26 @@
                     gameOptions.appendChild(option);
                 }
 
+                // Clear any answer that isn't on this platform, and say why.
+                const cleared = new Set();
+
                 for (const id of gameFieldIds) {
                     const input = document.getElementById(id);
 
-                    if (!allowed.has(input.value)) {
+                    if (input.value && !allowed.has(input.value)) {
+                        cleared.add(input.value);
                         input.value = "";
                     }
+                }
+
+                if (cleared.size > 0) {
+                    const names = [...cleared].join(", ");
+                    const ending = cleared.size === 1
+                        ? "isn't on " + platform + ", so it was cleared."
+                        : "aren't on " + platform + ", so they were cleared.";
+                    showMessage(names + " " + ending, true);
+                } else {
+                    message.textContent = "";
                 }
 
                 setGameInputsEnabled(true);
