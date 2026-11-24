@@ -2,6 +2,13 @@ CREATE DATABASE IF NOT EXISTS GamingTrends;
 
 USE GamingTrends;
 
+-- Re-running this file rebuilds everything from scratch (existing votes are deleted).
+DROP TABLE IF EXISTS responses;
+DROP TABLE IF EXISTS submissions;
+DROP TABLE IF EXISTS game_platforms;
+DROP TABLE IF EXISTS games;
+DROP TABLE IF EXISTS platforms;
+
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
@@ -21,6 +28,21 @@ CREATE TABLE games (
     game_id INT AUTO_INCREMENT PRIMARY KEY,
     game_name VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE game_platforms (
+    game_id INT NOT NULL,
+    platform_id INT NOT NULL,
+
+    PRIMARY KEY (game_id, platform_id),
+
+    FOREIGN KEY (game_id)
+        REFERENCES games(game_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (platform_id)
+        REFERENCES platforms(platform_id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE submissions (
@@ -89,7 +111,6 @@ VALUES
 	('Grand Theft Auto III'),
 	('Super Mario Odyssey'),
 	('Halo: Combat Evolved'),
-	('NFL 2K1'),
 	('Half-Life 2'),
 	('BioShock'),
 	('GoldenEye 007'),
@@ -100,7 +121,6 @@ VALUES
 	('Batman: Arkham City'),
 	('Tekken 3'),
 	('Mass Effect 2'),
-	('The Legend of Zelda: Twilight Princess'),
 	('Baldur''s Gate 3'),
 	('The Last of Us'),
 	('The Last of Us Part II'),
@@ -144,7 +164,6 @@ VALUES
 	('Super Mario World'),
 	('The Legend of Zelda: A Link to the Past'),
 	('The Legend of Zelda: Majora''s Mask'),
-	('The Legend of Zelda: The Wind Waker'),
 	('The Legend of Zelda: Tears of the Kingdom'),
 	('Metroid Dread'),
 	('Super Metroid'),
@@ -168,3 +187,313 @@ VALUES
 	('Super Smash Bros. Ultimate'),
 	('Mario Kart 8 Deluxe'),
 	('Animal Crossing: New Horizons');
+
+
+-- ---------- Which platforms each game is on ----------
+-- One game row per game (votes never split); this table says where it can be picked.
+
+-- PC
+INSERT INTO game_platforms (game_id, platform_id)
+SELECT g.game_id, p.platform_id
+FROM games AS g
+JOIN platforms AS p ON p.platform_name = 'PC'
+WHERE g.game_name IN (
+        'Minecraft',
+        'Fortnite',
+        'Roblox',
+        'Elden Ring',
+        'Valorant',
+        'Rocket League',
+        'Tony Hawk''s Pro Skater 2',
+        'Grand Theft Auto IV',
+        'Red Dead Redemption 2',
+        'Grand Theft Auto V',
+        'Disco Elysium: The Final Cut',
+        'Tony Hawk''s Pro Skater 3',
+        'Grand Theft Auto III',
+        'Halo: Combat Evolved',
+        'Half-Life 2',
+        'BioShock',
+        'Resident Evil 4',
+        'Metal Gear Solid 2: Sons of Liberty',
+        'The Orange Box',
+        'Batman: Arkham City',
+        'Mass Effect 2',
+        'Baldur''s Gate 3',
+        'The Last of Us',
+        'The Last of Us Part II',
+        'God of War',
+        'God of War Ragnarök',
+        'Portal 2',
+        'Half-Life',
+        'Chrono Trigger',
+        'Final Fantasy VII',
+        'Final Fantasy IX',
+        'Final Fantasy X',
+        'Persona 5 Royal',
+        'Persona 4 Golden',
+        'Persona 3 Reload',
+        'Dark Souls',
+        'Dark Souls III',
+        'Sekiro: Shadows Die Twice',
+        'The Witcher 3: Wild Hunt',
+        'Cyberpunk 2077',
+        'Red Dead Redemption',
+        'Skyrim',
+        'Oblivion',
+        'Morrowind',
+        'Fallout 3',
+        'Fallout: New Vegas',
+        'Mass Effect',
+        'Mass Effect 3',
+        'Dragon Age: Origins',
+        'Star Wars: Knights of the Old Republic',
+        'Divinity: Original Sin II',
+        'Hades',
+        'Hollow Knight',
+        'Celeste',
+        'Undertale',
+        'Stardew Valley',
+        'Terraria',
+        'Resident Evil 2',
+        'Resident Evil 2 Remake',
+        'Resident Evil 4 Remake',
+        'Silent Hill 2',
+        'Dead Space',
+        'Dead Space Remake',
+        'DOOM',
+        'DOOM Eternal',
+        'Quake',
+        'Portal',
+        'Left 4 Dead 2',
+        'Counter-Strike',
+        'Counter-Strike 2',
+        'Overwatch',
+        'Street Fighter II',
+        'Street Fighter 6'
+);
+
+-- PlayStation
+INSERT INTO game_platforms (game_id, platform_id)
+SELECT g.game_id, p.platform_id
+FROM games AS g
+JOIN platforms AS p ON p.platform_name = 'PlayStation'
+WHERE g.game_name IN (
+        'Minecraft',
+        'Fortnite',
+        'Roblox',
+        'Elden Ring',
+        'Valorant',
+        'Rocket League',
+        'Tony Hawk''s Pro Skater 2',
+        'Grand Theft Auto IV',
+        'SoulCalibur',
+        'Red Dead Redemption 2',
+        'Grand Theft Auto V',
+        'Disco Elysium: The Final Cut',
+        'Tony Hawk''s Pro Skater 3',
+        'Grand Theft Auto III',
+        'Half-Life 2',
+        'BioShock',
+        'Uncharted 2: Among Thieves',
+        'Resident Evil 4',
+        'Metal Gear Solid 2: Sons of Liberty',
+        'The Orange Box',
+        'Batman: Arkham City',
+        'Tekken 3',
+        'Mass Effect 2',
+        'Baldur''s Gate 3',
+        'The Last of Us',
+        'The Last of Us Part II',
+        'God of War',
+        'God of War Ragnarök',
+        'Portal 2',
+        'Half-Life',
+        'Chrono Trigger',
+        'Final Fantasy VII',
+        'Final Fantasy IX',
+        'Final Fantasy X',
+        'Persona 5 Royal',
+        'Persona 4 Golden',
+        'Persona 3 Reload',
+        'Bloodborne',
+        'Dark Souls',
+        'Dark Souls III',
+        'Sekiro: Shadows Die Twice',
+        'Demon''s Souls',
+        'The Witcher 3: Wild Hunt',
+        'Cyberpunk 2077',
+        'Red Dead Redemption',
+        'Skyrim',
+        'Oblivion',
+        'Fallout 3',
+        'Fallout: New Vegas',
+        'Mass Effect',
+        'Mass Effect 3',
+        'Dragon Age: Origins',
+        'Star Wars: Knights of the Old Republic',
+        'Divinity: Original Sin II',
+        'Hades',
+        'Hollow Knight',
+        'Celeste',
+        'Undertale',
+        'Stardew Valley',
+        'Terraria',
+        'Castlevania: Symphony of the Night',
+        'Resident Evil 2',
+        'Resident Evil 2 Remake',
+        'Resident Evil 4 Remake',
+        'Silent Hill 2',
+        'Dead Space',
+        'Dead Space Remake',
+        'DOOM',
+        'DOOM Eternal',
+        'Quake',
+        'Portal',
+        'Overwatch',
+        'Street Fighter II',
+        'Street Fighter 6'
+);
+
+-- Xbox
+INSERT INTO game_platforms (game_id, platform_id)
+SELECT g.game_id, p.platform_id
+FROM games AS g
+JOIN platforms AS p ON p.platform_name = 'Xbox'
+WHERE g.game_name IN (
+        'Minecraft',
+        'Fortnite',
+        'Roblox',
+        'Elden Ring',
+        'Valorant',
+        'Rocket League',
+        'Tony Hawk''s Pro Skater 2',
+        'Grand Theft Auto IV',
+        'SoulCalibur',
+        'Red Dead Redemption 2',
+        'Grand Theft Auto V',
+        'Disco Elysium: The Final Cut',
+        'Tony Hawk''s Pro Skater 3',
+        'Perfect Dark',
+        'Grand Theft Auto III',
+        'Halo: Combat Evolved',
+        'Half-Life 2',
+        'BioShock',
+        'GoldenEye 007',
+        'Resident Evil 4',
+        'Metal Gear Solid 2: Sons of Liberty',
+        'The Orange Box',
+        'Batman: Arkham City',
+        'Mass Effect 2',
+        'Baldur''s Gate 3',
+        'Portal 2',
+        'Final Fantasy VII',
+        'Final Fantasy IX',
+        'Final Fantasy X',
+        'Persona 5 Royal',
+        'Persona 4 Golden',
+        'Persona 3 Reload',
+        'Dark Souls',
+        'Dark Souls III',
+        'Sekiro: Shadows Die Twice',
+        'The Witcher 3: Wild Hunt',
+        'Cyberpunk 2077',
+        'Red Dead Redemption',
+        'Skyrim',
+        'Oblivion',
+        'Morrowind',
+        'Fallout 3',
+        'Fallout: New Vegas',
+        'Mass Effect',
+        'Mass Effect 3',
+        'Dragon Age: Origins',
+        'Star Wars: Knights of the Old Republic',
+        'Divinity: Original Sin II',
+        'Hades',
+        'Hollow Knight',
+        'Celeste',
+        'Undertale',
+        'Stardew Valley',
+        'Terraria',
+        'Castlevania: Symphony of the Night',
+        'Resident Evil 2 Remake',
+        'Resident Evil 4 Remake',
+        'Silent Hill 2',
+        'Dead Space',
+        'Dead Space Remake',
+        'DOOM',
+        'DOOM Eternal',
+        'Quake',
+        'Portal',
+        'Left 4 Dead 2',
+        'Counter-Strike',
+        'Overwatch',
+        'Street Fighter II',
+        'Street Fighter 6'
+);
+
+-- Nintendo Switch
+INSERT INTO game_platforms (game_id, platform_id)
+SELECT g.game_id, p.platform_id
+FROM games AS g
+JOIN platforms AS p ON p.platform_name = 'Nintendo Switch'
+WHERE g.game_name IN (
+        'Minecraft',
+        'Fortnite',
+        'Rocket League',
+        'The Legend of Zelda: Ocarina of Time',
+        'Tony Hawk''s Pro Skater 2',
+        'Super Mario Galaxy',
+        'Super Mario Galaxy 2',
+        'Disco Elysium: The Final Cut',
+        'The Legend of Zelda: Breath of the Wild',
+        'Tony Hawk''s Pro Skater 3',
+        'Metroid Prime',
+        'Grand Theft Auto III',
+        'Super Mario Odyssey',
+        'BioShock',
+        'GoldenEye 007',
+        'Resident Evil 4',
+        'Metal Gear Solid 2: Sons of Liberty',
+        'Batman: Arkham City',
+        'Portal 2',
+        'Final Fantasy VII',
+        'Final Fantasy IX',
+        'Final Fantasy X',
+        'Dark Souls',
+        'The Witcher 3: Wild Hunt',
+        'Red Dead Redemption',
+        'Skyrim',
+        'Star Wars: Knights of the Old Republic',
+        'Divinity: Original Sin II',
+        'Hades',
+        'Hollow Knight',
+        'Celeste',
+        'Undertale',
+        'Stardew Valley',
+        'Terraria',
+        'Super Mario 64',
+        'Super Mario Bros. 3',
+        'Super Mario World',
+        'The Legend of Zelda: A Link to the Past',
+        'The Legend of Zelda: Majora''s Mask',
+        'The Legend of Zelda: Tears of the Kingdom',
+        'Metroid Dread',
+        'Super Metroid',
+        'DOOM',
+        'DOOM Eternal',
+        'Quake',
+        'Portal',
+        'Overwatch',
+        'Street Fighter II',
+        'Super Smash Bros. Ultimate',
+        'Mario Kart 8 Deluxe',
+        'Animal Crossing: New Horizons'
+);
+
+-- Sanity check: games that ended up on no platform (they can't be chosen in the survey).
+-- Add rows for them above, or ignore them.
+SELECT g.game_name AS game_with_no_platform
+FROM games AS g
+LEFT JOIN game_platforms AS gp ON gp.game_id = g.game_id
+WHERE gp.game_id IS NULL;

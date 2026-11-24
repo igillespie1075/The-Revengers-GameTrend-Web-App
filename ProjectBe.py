@@ -40,12 +40,12 @@ def close_db(exception=None):
         db.close()
 
 
-def read_limit():
-    """Read ?limit= from the URL; default 3, minimum 1, maximum 50."""
+def read_limit(default=3):
+    """Read ?limit= from the URL; minimum 1, maximum 50."""
     try:
-        limit = int(request.args.get("limit", 3))
+        limit = int(request.args.get("limit", default))
     except ValueError:
-        limit = 3
+        limit = default
 
     return max(1, min(limit, 50))
 
@@ -60,7 +60,10 @@ def get_platform_names():
 
 
 def top_games(category, limit, platform=None):
-    """Return the ranked games for one category (optionally for one platform)."""
+    """Return the ranked games for one category (optionally for one platform).
+
+    category=None counts all three categories together.
+    """
     cursor = get_db().cursor(dictionary=True)
 
     sql = """
@@ -72,10 +75,14 @@ def top_games(category, limit, platform=None):
             ON r.submission_id = s.submission_id
         JOIN platforms AS p
             ON s.platform_id = p.platform_id
-        WHERE r.response_type = %s
+        WHERE 1 = 1
     """
 
-    parameters = [category]
+    parameters = []
+
+    if category:
+        sql += " AND r.response_type = %s"
+        parameters.append(category)
 
     if platform:
         sql += " AND p.platform_name = %s"
@@ -147,9 +154,35 @@ def list_platforms():
 
 @app.get("/api/games")
 def list_games():
-    """Every game in the database; the survey page uses this for suggestions."""
+    """Games for the survey suggestions.
+
+    ?platform=PlayStation only returns games available on that platform.
+    With no platform, every game is returned.
+    """
+    platform = request.args.get("platform", "").strip() or None
+
+    if platform and platform not in get_platform_names():
+        return jsonify({"error": "Unknown platform"}), 400
+
     cursor = get_db().cursor()
-    cursor.execute("SELECT game_name FROM games ORDER BY game_name")
+
+    if platform:
+        cursor.execute(
+            """
+            SELECT g.game_name
+            FROM games AS g
+            JOIN game_platforms AS gp
+                ON gp.game_id = g.game_id
+            JOIN platforms AS p
+                ON p.platform_id = gp.platform_id
+            WHERE p.platform_name = %s
+            ORDER BY g.game_name
+            """,
+            (platform,),
+        )
+    else:
+        cursor.execute("SELECT game_name FROM games ORDER BY game_name")
+
     names = [row[0] for row in cursor.fetchall()]
     cursor.close()
     return jsonify(names)
@@ -199,6 +232,58 @@ def one_result(category):
             read_limit(),
             platform,
         ),
+    })
+
+
+@app.get("/api/summary")
+def home_summary():
+    """Everything the home page needs in one request: how many surveys have
+    been submitted, plus each platform's top games.
+
+    Optional query parameters:
+      ?category=favorite | most_played | currently_playing | all  (default: favorite)
+      ?limit=N  games per platform (default: 4)
+    """
+    category = request.args.get("category", "favorite")
+
+    if category != "all" and category not in CATEGORIES:
+        return jsonify({"error": f"Unknown category '{category}'"}), 400
+
+    limit = read_limit(default=4)
+
+    # Surveys submitted per platform. LEFT JOIN keeps platforms with 0 surveys.
+    cursor = get_db().cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT p.platform_name AS platform, COUNT(s.submission_id) AS surveys
+        FROM platforms AS p
+        LEFT JOIN submissions AS s
+            ON s.platform_id = p.platform_id
+        GROUP BY p.platform_id, p.platform_name
+        ORDER BY p.platform_name
+        """
+    )
+    platform_rows = cursor.fetchall()
+    cursor.close()
+
+    platforms = [
+        {
+            "platform": row["platform"],
+            "surveys": row["surveys"],
+            "top_games": top_games(
+                None if category == "all" else category,
+                limit,
+                row["platform"],
+            ),
+        }
+        for row in platform_rows
+    ]
+
+    return jsonify({
+        "category": category,
+        "title": "All categories" if category == "all" else CATEGORIES[category],
+        "total_surveys": sum(p["surveys"] for p in platforms),
+        "platforms": platforms,
     })
 
 
@@ -268,20 +353,27 @@ def add_response():
                 "field": "platform",
             }), 400
 
-        # 2. Every game must exist in the games table.
+        # 2. Every game must exist AND be available on the chosen platform.
         game_ids = {}
 
         for category, game in choices.items():
             cursor.execute(
-                "SELECT game_id FROM games WHERE game_name = %s",
-                (game,),
+                """
+                SELECT g.game_id
+                FROM games AS g
+                JOIN game_platforms AS gp
+                    ON gp.game_id = g.game_id
+                WHERE g.game_name = %s
+                  AND gp.platform_id = %s
+                """,
+                (game, platform_row["platform_id"]),
             )
             game_row = cursor.fetchone()
 
             if game_row is None:
                 return jsonify({
                     "error": (
-                        f'"{game}" is not in our game list. '
+                        f'"{game}" is not on our {platform} game list. '
                         "Please choose a game from the suggestions."
                     ),
                     "field": category,
